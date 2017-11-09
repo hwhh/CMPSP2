@@ -102,12 +102,13 @@ public class MainActivity extends AppCompatActivity {
             gameFragment.setGame(board.getGame());
         } else {
 
-            GameFragment newFragment = new GameFragment();
+            GameFragment newFragment = new GameFragment(game, board);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, newFragment, "some_frag");
             transaction.addToBackStack(null);
             transaction.commit();
+
         }
 
     }

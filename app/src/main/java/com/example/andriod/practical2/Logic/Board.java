@@ -7,7 +7,7 @@ import android.os.Parcelable;
 import java.io.Serializable;
 import java.util.Observable;
 
-public class Board extends Observable implements Serializable {
+public class Board extends Observable implements Parcelable {
 
     public static final int COLUMNS = 7, ROWS = 6;
 
@@ -32,6 +32,23 @@ public class Board extends Observable implements Serializable {
     }
 
 
+    protected Board(Parcel in) {
+        game = in.readParcelable(Game.class.getClassLoader());
+        xCord = in.readInt();
+        yCord = in.readInt();
+    }
+
+    public static final Creator<Board> CREATOR = new Creator<Board>() {
+        @Override
+        public Board createFromParcel(Parcel in) {
+            return new Board(in);
+        }
+
+        @Override
+        public Board[] newArray(int size) {
+            return new Board[size];
+        }
+    };
 
     public Game.Colour getTurn() {
         return turn;
@@ -120,4 +137,15 @@ public class Board extends Observable implements Serializable {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(game, flags);
+        dest.writeInt(xCord);
+        dest.writeInt(yCord);
+    }
 }

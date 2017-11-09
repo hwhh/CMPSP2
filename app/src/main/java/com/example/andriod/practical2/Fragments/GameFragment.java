@@ -1,5 +1,6 @@
 package com.example.andriod.practical2.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -27,36 +28,49 @@ public class GameFragment extends Fragment{
     private Board board;
     private Game game;
 
+    public GameFragment(Game game, Board board) {
+        this.board = board;
+        this.game = game;
+    }
+
+    public GameFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        game = new Game( false);
-        board  = new Board(Game.Colour.RED, game);
+        Bundle bundle = getArguments();
+
+        if(game == null)
+            game = new Game( false);
+        else
+            game = bundle.getParcelable("game");
+
+        if(board == null)
+            board  = new Board(Game.Colour.RED, game);
+        else
+            board = bundle.getParcelable("board");
+
         gameView = (GameView) inflater.inflate(R.layout.game_fragment, container, false);
         board.addObserver(gameView);
         game.addObserver(gameView);
         return gameView;
     }
 
-    public Board getBoard() {
-        return board;
-    }
 
-    public Game getGame() {
-        return game;
-    }
 
     public void setBoard(Board board) {
         this.board = board;
-        board.addObserver(gameView);
-        gameView.clearCanvas();
-
+            board.addObserver(gameView);
+            gameView.clearCanvas();
+//        }
     }
 
     public void setGame(Game game) {
         this.game = game;
-        game.addObserver(gameView);
-        gameView.clearCanvas();
+//        if(gameView != null) {
+            game.addObserver(gameView);
+            gameView.clearCanvas();
+//        }
     }
 
     public void makeBoardMove(int x){
@@ -77,7 +91,7 @@ public class GameFragment extends Fragment{
         ed.putString("gameWon", gson.toJson(game.isWon()));
         ed.putString("gameWinner", gson.toJson(game.getWinner()));
 
-        ed.commit();//TODO Change this
+        ed.apply();//TODO Change this
 
 
 
