@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
 <!--<data>-->
     <!--<variable name="board" type="com.example.andriod.practical2.Logic.Board"/>-->
     <!--<variable name="game"  type="com.example.andriod.practical2.Logic.Game"/>-->
 <!--</data>-->
 
-<LinearLayout
+<com.example.andriod.practical2.Views.GameView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
 
-    <com.example.andriod.practical2.Views.GameView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</LinearLayout>
+</com.example.andriod.practical2.Views.GameView>
 
-</layout>

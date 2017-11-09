@@ -1,44 +1,52 @@
 package com.example.andriod.practical2.Logic;
 
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.util.Observable;
 
-public class Board extends Observable implements Parcelable {
+public class Board extends Observable implements Serializable {
 
     public static final int COLUMNS = 7, ROWS = 6;
 
     private Game.Colour turn;
     private Game.Colour[][] board;
     private Game game;
+    public int xCord, yCord;
 
-    public Board(Game.Colour turn) {
+
+    public Board(Game.Colour turn, Game.Colour[][] board, Game game, int xCord, int yCord) {
         this.turn = turn;
+        this.board = board;
+        this.game = game;
+        this.xCord = xCord;
+        this.yCord = yCord;
+    }
+
+    public Board(Game.Colour turn, Game game) {
+        this.turn = turn;
+        this.game = game;
         this.board = new Game.Colour[ROWS][COLUMNS];
     }
 
-    protected Board(Parcel in) {
-    }
 
-    public static final Creator<Board> CREATOR = new Creator<Board>() {
-        @Override
-        public Board createFromParcel(Parcel in) {
-            return new Board(in);
-        }
-
-        @Override
-        public Board[] newArray(int size) {
-            return new Board[size];
-        }
-    };
-
-    public void setGame(Game game) {
-        this.game = game;
-    }
 
     public Game.Colour getTurn() {
         return turn;
+    }
+//
+    public Game getGame() {
+        return game;
+    }
+
+    public int getxCord() {
+        return xCord;
+    }
+
+    public int getyCord() {
+        return yCord;
     }
 
     public Game.Colour[][] getBoard() {
@@ -81,39 +89,35 @@ public class Board extends Observable implements Parcelable {
     }
 
 
-    public boolean makeMove(int xCord, Game.Colour colour) {
+    public boolean makeMove(int xCord) {
         if(board[ROWS-1][xCord] != null || game.isWon())
             return false;
         else {
             boolean validMove = false;
             if(board[0][xCord] == null) {
-                board[0][xCord] = colour;
+                board[0][xCord] = turn;
                 validMove = true;
+                this.xCord = xCord;
+                this.yCord = 0;
             }else {
                 for (int y = 0; y < ROWS-1; y++) {
                     if (board[y][xCord] == null) {
-                        board[y][xCord] = colour;
+                        board[y][xCord] = turn;
                         validMove = true;
+                        this.xCord = xCord;
+                        this.yCord = y;
                         break;
                     }
                 }
 
             }
             if(checkWin(turn))
-                game.setWon(colour);
+                game.setWon(turn);
             turn = Game.switchTurn(turn);
+            setChanged();
+            notifyObservers(board);
             return validMove;
         }
-
     }
 
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-    }
 }
