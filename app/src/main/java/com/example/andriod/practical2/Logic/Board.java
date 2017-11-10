@@ -70,7 +70,6 @@ public class Board extends Observable implements Parcelable {
         return board;
     }
 
-    //TODO refactor to make single for loop which takes different parameters
     public boolean checkWin(Game.Colour colour) {
         // horizontalCheck
         for (int j = 0; j < COLUMNS - 3; j++) {

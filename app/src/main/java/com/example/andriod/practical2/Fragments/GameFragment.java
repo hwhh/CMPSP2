@@ -26,10 +26,13 @@ public class GameFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        if (bundle != null) {
+        try {
             game = bundle.getParcelable("game");
             board = bundle.getParcelable("board");
-        }else {
+        }catch (NullPointerException ignored){
+
+        }
+        if(game == null || board == null){
             game = new Game( false);
             board  = new Board(Game.Colour.RED, game);
         }
@@ -76,14 +79,9 @@ public class GameFragment extends Fragment{
         ed.putString("turn", gson.toJson(board.getTurn()));
         ed.putString("xCord", gson.toJson(board.getxCord()));
         ed.putString("yCord", gson.toJson(board.getyCord()));
-
         ed.putString("gameWon", gson.toJson(game.isWon()));
         ed.putString("gameWinner", gson.toJson(game.getWinner()));
-
-        ed.apply();//TODO Change this
-
-
-
+        ed.apply();
     }
 
 

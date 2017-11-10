@@ -20,12 +20,10 @@ import com.google.gson.JsonPrimitive;
 
 public class MainActivity extends AppCompatActivity {
 
-
     GameFragment gameFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_fragment);
         if (findViewById(R.id.fragment_container) != null) {
@@ -38,12 +36,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-    //TODO read ​(review), ​update ​(play), ​and ​delete ​(restart)
-    public void onNewGame(View v) {
 
+    public void onNewGame(View v) {
         Bundle args = new Bundle();
         gameFragment = (GameFragment) getSupportFragmentManager().findFragmentById(R.id.game_fragment);
-
         //Tablet mode
         if (gameFragment != null) {
             gameFragment.setArguments(args);
@@ -52,48 +48,22 @@ public class MainActivity extends AppCompatActivity {
             gameFragment.setBoard(newBoard);
             gameFragment.setGame(newGame);
         } else {
-            // If the frag is not available, we're in the one-pane layout and must swap frags...
-            // Create fragment and give it an argument for the selected article
             GameFragment newFragment = new GameFragment();
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this fragment,
-            // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment, "some_frag");
+            transaction.replace(R.id.fragment_container, newFragment, "new_fragment");
             transaction.addToBackStack(null);
-
-            // Commit the transaction
             transaction.commit();
         }
-//
     }
 
 
-    //TODO Refactor into seperate functions
     public void onLoadGame(View v){
         Gson gson = new Gson();
         JsonParser parser=new JsonParser();
         SharedPreferences mPrefs= this.getSharedPreferences(this.getApplicationInfo().name, Context.MODE_PRIVATE);
-
-        JsonPrimitive gameWon = parser.parse(mPrefs.getString("gameWon", null)).getAsJsonPrimitive();
-        JsonObject gameWinner = null;
-        try {
-            gameWinner = parser.parse(mPrefs.getString("gameWinner", null)).getAsJsonObject();
-        }catch (Exception ignored){}
-
-        JsonArray JsonBoard = parser.parse(mPrefs.getString("board", null)).getAsJsonArray();
-        Game.Colour[][] gameBoard = new Game.Colour[Board.ROWS][Board.COLUMNS];
-        int i = 0;
-        for (JsonElement jsonElement : JsonBoard) {
-            gameBoard[i++] =  gson.fromJson(jsonElement, Game.Colour[].class);
-        }
-        String turn = parser.parse(mPrefs.getString("turn", null)).getAsString();
-        JsonPrimitive xCord = parser.parse(mPrefs.getString("xCord", null)).getAsJsonPrimitive();
-        JsonPrimitive yCord = parser.parse(mPrefs.getString("yCord", null)).getAsJsonPrimitive();
-
-        Game game = new Game(gson.fromJson(gameWinner, Game.Colour.class), gameWon.getAsBoolean());
-        Board board = new Board(turn.equals("YELLOW") ? Game.Colour.YELLOW : Game.Colour.RED, gameBoard, game, xCord.getAsInt(), yCord.getAsInt());
+        Game game = loadGame(gson, parser, mPrefs);
+        Board board = loadBoard(gson, parser, mPrefs, game);
 
         Bundle args = new Bundle();
         gameFragment = (GameFragment) getSupportFragmentManager().findFragmentById(R.id.game_fragment);
@@ -108,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             args.putParcelable("board", board);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, newFragment, "some_frag");
+            transaction.replace(R.id.fragment_container, newFragment, "new_fragment");
             transaction.addToBackStack(null);
             transaction.commit();
 
@@ -130,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         return new Board(turn.equals("YELLOW") ? Game.Colour.YELLOW : Game.Colour.RED, gameBoard, game, xCord.getAsInt(), yCord.getAsInt());
     }
 
-    public Game loadBoard(Gson gson, JsonParser parser, SharedPreferences mPrefs){
+    public Game loadGame(Gson gson, JsonParser parser, SharedPreferences mPrefs){
         JsonPrimitive gameWon = parser.parse(mPrefs.getString("gameWon", null)).getAsJsonPrimitive();
         JsonObject gameWinner = null;
         try {

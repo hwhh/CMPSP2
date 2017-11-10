@@ -30,8 +30,7 @@ public class GameView extends View implements Observer {
 
     Bitmap b;
     Canvas c;
-    private float maxX;
-    private float maxY;
+
 
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
@@ -70,10 +69,10 @@ public class GameView extends View implements Observer {
         super.onSizeChanged(w, h, oldw, oldh);
         float xpad = (float) (getPaddingLeft() + getPaddingRight());
         float ypad = (float) (getPaddingTop() + getPaddingBottom());
-        width = ((float) w - xpad); //TODO change to const
+        width = ((float) w - xpad);
         height = ((float) h - ypad);
-        maxX = (getWidth() / (Board.COLUMNS+1)) / 2;
-        maxY = (getHeight() / (Board.ROWS+1)) / 2;
+        float maxX = (getWidth() / (Board.COLUMNS+1)) / 2;
+        float maxY = (getHeight() / (Board.ROWS+1)) / 2;
         circleRadius = Math.min(maxX, maxY);
         width = width - (circleRadius * 2);
         b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -83,14 +82,14 @@ public class GameView extends View implements Observer {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX(), y = event.getY();
-        xCord = (float) (Math.floor((x / ((width) / 6))) * ((width) / 6) * 2);//TODO change to const and add offset for circle size
+        xCord = (float) (Math.floor((x / ((width) / 6))) * ((width) / 6) * 2);
         yCord = y;
         if ((screenToCell(x) < Board.COLUMNS)) {
 
             AppCompatActivity context = (AppCompatActivity) getContext();
             GameFragment gameFragment = (GameFragment) context.getSupportFragmentManager().findFragmentById(R.id.game_fragment);
             if(gameFragment == null)
-                gameFragment = (GameFragment) context.getSupportFragmentManager().findFragmentByTag("some_frag");
+                gameFragment = (GameFragment) context.getSupportFragmentManager().findFragmentByTag("new_fragment");
             gameFragment.makeBoardMove(screenToCell(x));
         }
         return super.onTouchEvent(event);
