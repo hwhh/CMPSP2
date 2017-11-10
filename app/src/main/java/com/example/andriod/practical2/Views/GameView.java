@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -20,23 +21,25 @@ import com.example.andriod.practical2.R;
 import java.util.Observer;
 
 
-public class GameView extends View implements Observer{
+public class GameView extends View implements Observer {
 
     Paint yellowCircle, redCircle, winner, ditherPaint, line;
+    Path path;
     float width, height, circleRadius;
     float xCord, yCord;
 
     Bitmap b;
     Canvas c;
+    private float maxX;
+    private float maxY;
 
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
-
     }
 
-    public void clearCanvas(){
+    public void clearCanvas() {
         c.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         this.invalidate();
         this.requestLayout();
@@ -58,6 +61,8 @@ public class GameView extends View implements Observer{
         line = new Paint();
         line.setColor(Color.BLACK);
         line.setStrokeWidth(10);
+
+        path = new Path();
     }
 
     @Override
@@ -67,20 +72,19 @@ public class GameView extends View implements Observer{
         float ypad = (float) (getPaddingTop() + getPaddingBottom());
         width = ((float) w - xpad); //TODO change to const
         height = ((float) h - ypad);
-        circleRadius = Math.min(((width / (Board.COLUMNS+1)) / 2), (height / (Board.ROWS+1)) / 2);
+        maxX = (getWidth() / (Board.COLUMNS+1)) / 2;
+        maxY = (getHeight() / (Board.ROWS+1)) / 2;
+        circleRadius = Math.min(maxX, maxY);
         width = width - (circleRadius * 2);
         b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         c = new Canvas(b);
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX(), y = event.getY();
-
         xCord = (float) (Math.floor((x / ((width) / 6))) * ((width) / 6) * 2);//TODO change to const and add offset for circle size
         yCord = y;
-
         if ((screenToCell(x) < Board.COLUMNS)) {
 
             AppCompatActivity context = (AppCompatActivity) getContext();
@@ -101,21 +105,20 @@ public class GameView extends View implements Observer{
     }
 
     public float cellYToScreen(int y) {
-        return ((height - circleRadius) + ((-y) * (height / 6)));
+        return getHeight() - ((y *((circleRadius*2)+20))+circleRadius);
     }
-
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //TODO CHNAGE THIS TO DRAW GRID
-        float ytop = getHeight() - (circleRadius*2)*Board.ROWS;
+        float ytop = getHeight() - (((circleRadius*2) * Board.ROWS)+(10*Board.ROWS));
+        float xPadding = (getWidth() - ((circleRadius*2)*Board.COLUMNS))/(Board.COLUMNS-1);
         for (int i = 0; i < Board.COLUMNS; i++) {
-            float x = Math.round(cellXToScreen(i)-(circleRadius*1.2));
+            float x = cellXToScreen(i)+circleRadius+(xPadding/2);
             canvas.drawLine(x, ytop, x, getHeight(), line);
         }
-        for (int i = 0; i < Board.ROWS-1; i++) {
-            float y = Math.round(cellYToScreen(i)-(circleRadius*1.2));
+        for (int i = 1; i < Board.ROWS; i++) {
+            float y = cellYToScreen(i)+circleRadius+10;
             canvas.drawLine(0, y, getWidth(), y, line);
         }
         canvas.drawBitmap(b, 0, 0, ditherPaint);
@@ -134,12 +137,6 @@ public class GameView extends View implements Observer{
                     }
                 }
             }
-            int i = board.yCord, j = board.xCord;
-//            if (board.getBoard()[i][j] == Game.Colour.RED) {
-//                c.drawCircle(cellXToScreen(j), cellYToScreen(i), circleRadius, redCircle);
-//            } else if (board.getBoard()[i][j] == Game.Colour.YELLOW) {
-//                c.drawCircle(cellXToScreen(j), cellYToScreen(i), circleRadius, yellowCircle);
-//            }
         } else if (o instanceof Game) {
             Game game = (Game) o;
             if (game.isWon()) {

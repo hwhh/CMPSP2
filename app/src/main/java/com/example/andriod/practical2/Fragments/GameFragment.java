@@ -1,6 +1,5 @@
 package com.example.andriod.practical2.Fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,11 +14,6 @@ import com.example.andriod.practical2.R;
 import com.example.andriod.practical2.Views.GameView;
 import com.google.gson.Gson;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 
 public class GameFragment extends Fragment{
 
@@ -28,55 +22,50 @@ public class GameFragment extends Fragment{
     private Board board;
     private Game game;
 
-    public GameFragment(Game game, Board board) {
-        this.board = board;
-        this.game = game;
-    }
-
-    public GameFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-
-        if(game == null)
-            game = new Game( false);
-        else
+        if (bundle != null) {
             game = bundle.getParcelable("game");
-
-        if(board == null)
-            board  = new Board(Game.Colour.RED, game);
-        else
             board = bundle.getParcelable("board");
-
-        gameView = (GameView) inflater.inflate(R.layout.game_fragment, container, false);
-        board.addObserver(gameView);
-        game.addObserver(gameView);
+        }else {
+            game = new Game( false);
+            board  = new Board(Game.Colour.RED, game);
+        }
+        this.gameView = (GameView) inflater.inflate(R.layout.game_fragment, container, false);
+        this.board.addObserver(gameView);
+        this.game.addObserver(gameView);
+        loadGame();
         return gameView;
     }
 
-
-
     public void setBoard(Board board) {
         this.board = board;
-            board.addObserver(gameView);
-            gameView.clearCanvas();
-//        }
+        board.addObserver(gameView);
+        gameView.clearCanvas();
     }
 
     public void setGame(Game game) {
         this.game = game;
-//        if(gameView != null) {
-            game.addObserver(gameView);
-            gameView.clearCanvas();
-//        }
+        game.addObserver(gameView);
+        gameView.clearCanvas();
     }
 
     public void makeBoardMove(int x){
         if (board.makeMove(x)){
             saveBoard();
         }
+    }
+
+    public void loadGame(){
+        gameView.post(new Runnable() {
+            @Override
+            public void run() {
+                board.updateObservers();
+                game.updateObservers();
+            }
+        });
     }
 
     public void saveBoard(){
@@ -99,5 +88,8 @@ public class GameFragment extends Fragment{
 
 
 }
+
+
+
 
 

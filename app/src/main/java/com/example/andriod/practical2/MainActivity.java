@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
 //
     }
 
-    //TODO Refactor into one function
+
+    //TODO Refactor into seperate functions
     public void onLoadGame(View v){
         Gson gson = new Gson();
         JsonParser parser=new JsonParser();
@@ -100,17 +101,42 @@ public class MainActivity extends AppCompatActivity {
             gameFragment.setArguments(args);
             gameFragment.setBoard(board);
             gameFragment.setGame(board.getGame());
+            gameFragment.loadGame();
         } else {
-
-            GameFragment newFragment = new GameFragment(game, board);
+            GameFragment newFragment = new GameFragment();
+            args.putParcelable("game", game);
+            args.putParcelable("board", board);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, newFragment, "some_frag");
             transaction.addToBackStack(null);
             transaction.commit();
 
-        }
 
+        }
+    }
+
+
+    public Board loadBoard(Gson gson, JsonParser parser, SharedPreferences mPrefs, Game game){
+        JsonArray JsonBoard = parser.parse(mPrefs.getString("board", null)).getAsJsonArray();
+        Game.Colour[][] gameBoard = new Game.Colour[Board.ROWS][Board.COLUMNS];
+        int i = 0;
+        for (JsonElement jsonElement : JsonBoard) {
+            gameBoard[i++] =  gson.fromJson(jsonElement, Game.Colour[].class);
+        }
+        String turn = parser.parse(mPrefs.getString("turn", null)).getAsString();
+        JsonPrimitive xCord = parser.parse(mPrefs.getString("xCord", null)).getAsJsonPrimitive();
+        JsonPrimitive yCord = parser.parse(mPrefs.getString("yCord", null)).getAsJsonPrimitive();
+        return new Board(turn.equals("YELLOW") ? Game.Colour.YELLOW : Game.Colour.RED, gameBoard, game, xCord.getAsInt(), yCord.getAsInt());
+    }
+
+    public Game loadBoard(Gson gson, JsonParser parser, SharedPreferences mPrefs){
+        JsonPrimitive gameWon = parser.parse(mPrefs.getString("gameWon", null)).getAsJsonPrimitive();
+        JsonObject gameWinner = null;
+        try {
+            gameWinner = parser.parse(mPrefs.getString("gameWinner", null)).getAsJsonObject();
+        }catch (Exception ignored){}
+        return new Game(gson.fromJson(gameWinner, Game.Colour.class), gameWon.getAsBoolean());
     }
 
 

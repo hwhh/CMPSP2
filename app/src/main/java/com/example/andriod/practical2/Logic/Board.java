@@ -117,7 +117,7 @@ public class Board extends Observable implements Parcelable {
                 this.xCord = xCord;
                 this.yCord = 0;
             }else {
-                for (int y = 0; y < ROWS-1; y++) {
+                for (int y = 0; y < ROWS; y++) {
                     if (board[y][xCord] == null) {
                         board[y][xCord] = turn;
                         validMove = true;
@@ -131,10 +131,15 @@ public class Board extends Observable implements Parcelable {
             if(checkWin(turn))
                 game.setWon(turn);
             turn = Game.switchTurn(turn);
-            setChanged();
-            notifyObservers(board);
+            updateObservers();
             return validMove;
         }
+    }
+
+
+    public void updateObservers(){
+        setChanged();
+        notifyObservers(this);
     }
 
     @Override

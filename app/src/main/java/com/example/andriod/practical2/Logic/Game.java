@@ -71,6 +71,11 @@ public class Game extends Observable implements Parcelable{
     }
 
 
+    public void updateObservers(){
+        setChanged();
+        notifyObservers(this);
+    }
+
     public static Colour switchTurn(Colour turn){
         if(turn == Colour.RED)
             return Colour.YELLOW;
